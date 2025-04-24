@@ -52,8 +52,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 private val Gray = Color(0xFF757575)
@@ -352,21 +352,21 @@ private fun Modifier.continuousClick(
 ): Modifier = composed {
 
    val interactionSource = remember { MutableInteractionSource() }
-   var job by remember { MutableRef<Job?>(null) }
+   val updatedOnClick by rememberUpdatedState(onClick)
 
    this
       .indication(interactionSource, LocalIndication.current)
-      .pointerInput(Unit) {
+      .pointerInput(interactionSource) {
          detectTapGestures(
-            onPress = {
-               val press = PressInteraction.Press(it)
+            onPress = { pressPosition ->
+               val press = PressInteraction.Press(pressPosition)
                interactionSource.emit(press)
 
-               onClick()
-               job = scope.launch {
+               updatedOnClick()
+               val job = scope.launch {
                   delay(initialDelay)
-                  while (true) {
-                     onClick()
+                  while (isActive) {
+                     updatedOnClick()
                      delay(repeatInterval)
                   }
                }
@@ -374,7 +374,7 @@ private fun Modifier.continuousClick(
                try {
                   awaitRelease()
                } finally {
-                  job?.cancel()
+                  job.cancel()
                   interactionSource.emit(PressInteraction.Release(press))
                }
             }

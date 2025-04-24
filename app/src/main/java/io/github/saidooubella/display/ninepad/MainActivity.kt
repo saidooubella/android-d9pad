@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
          D9PadTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                Column(Modifier.padding(innerPadding)) {
-                  val keystrokes = rememberMutablePipelineOf<KeypadCode>()
+                  val keystrokes = rememberMutablePipeOf<KeypadCode>()
                   DialerSample(keystrokes, Modifier.weight(1F))
                   Keypad(Modifier.align(Alignment.CenterHorizontally), keystrokes::send)
                }
@@ -72,7 +72,7 @@ private val keycodeToChar = buildMap {
 
 @Composable
 private fun DialerSample(
-   keystrokes: Pipeline<KeypadCode>,
+   keystrokes: Pipe<KeypadCode>,
    modifier: Modifier = Modifier,
 ) {
    Box(

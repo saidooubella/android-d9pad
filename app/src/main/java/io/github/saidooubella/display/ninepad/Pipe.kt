@@ -5,22 +5,22 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.channels.Channel
 
-interface Pipeline<out T> : AutoCloseable {
+interface Pipe<out T> : AutoCloseable {
    suspend fun receive(block: (T) -> Unit)
 }
 
-interface MutablePipeline<T> : Pipeline<T> {
+interface MutablePipe<T> : Pipe<T> {
    fun send(value: T)
 }
 
-private class ReadOnlyPipeline<T>(val pipeline: Pipeline<T>) : Pipeline<T> {
+private class ReadOnlyPipe<T>(val pipeline: Pipe<T>) : Pipe<T> {
    override suspend fun receive(block: (T) -> Unit) = pipeline.receive(block)
    override fun close() = pipeline.close()
 }
 
-fun <T> MutablePipeline<T>.asPipeline(): Pipeline<T> = ReadOnlyPipeline(this)
+fun <T> MutablePipe<T>.asPipe(): Pipe<T> = ReadOnlyPipe(this)
 
-private class PipelineImpl<T> : MutablePipeline<T> {
+private class PipeImpl<T> : MutablePipe<T> {
 
    private val channel = Channel<T>()
 
@@ -38,12 +38,8 @@ private class PipelineImpl<T> : MutablePipeline<T> {
 }
 
 @Composable
-fun <T> rememberMutablePipelineOf(): MutablePipeline<T> {
-   val pipeline = remember { PipelineImpl<T>() }
-
-   DisposableEffect(Unit) {
-      onDispose { pipeline.close() }
-   }
-
-   return pipeline
+fun <T> rememberMutablePipeOf(): MutablePipe<T> {
+   val pipe = remember { PipeImpl<T>() }
+   DisposableEffect(Unit) { onDispose { pipe.close() } }
+   return pipe
 }
