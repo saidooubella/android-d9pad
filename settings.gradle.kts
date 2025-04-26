@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "D9Pad"
 include(":app")
+include(":d9padgen")

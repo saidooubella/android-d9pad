@@ -356,7 +356,7 @@ private fun Modifier.continuousClick(
 
    this
       .indication(interactionSource, LocalIndication.current)
-      .pointerInput(interactionSource) {
+      .pointerInput(scope, initialDelay, repeatInterval) {
          detectTapGestures(
             onPress = { pressPosition ->
                val press = PressInteraction.Press(pressPosition)

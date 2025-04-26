@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,12 +28,15 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.saidooubella.display.ninepad.d9pad.renderer.StaticRender
 import io.github.saidooubella.display.ninepad.ui.theme.D9PadTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -46,7 +50,12 @@ class MainActivity : ComponentActivity() {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                Column(Modifier.padding(innerPadding)) {
                   val keystrokes = rememberMutablePipeOf<KeypadCode>()
-                  DialerSample(keystrokes, Modifier.weight(1F))
+//                  DialerSample(keystrokes, Modifier.weight(1F))
+                  Box(Modifier.weight(1f)) {
+                     val context = LocalContext.current
+                     val uiHost = remember(context) { SysUiHost(context) }
+                     StaticRender(uiHost)
+                  }
                   Keypad(Modifier.align(Alignment.CenterHorizontally), keystrokes::send)
                }
             }
@@ -178,4 +187,10 @@ private fun DialerSample(
 @Composable
 private fun CanvasWithCache(modifier: Modifier, onBuildDrawCache: CacheDrawScope.() -> DrawResult) {
    Spacer(modifier.drawWithCache(onBuildDrawCache))
+}
+
+@Preview
+@Composable
+private fun Text() {
+   StaticRender(SysUiHost(LocalContext.current))
 }

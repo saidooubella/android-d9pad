@@ -31,6 +31,7 @@ fun D9PadTheme(
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> LocalContext.current.let { context ->
          if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
       }
+
       else -> if (darkTheme) DarkColorScheme else LightColorScheme
    }
 
